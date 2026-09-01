@@ -1,0 +1,56 @@
+{{ define "main" }}
+  {{ $presentation := .Params.presentation | default "color" }}
+  {{ if not (in (slice "color" "film" "bw") $presentation) }}
+    {{ errorf "collection %q: presentation must be color, film, or bw" .File.Path }}
+  {{ end }}
+  {{ $images := sort (.Resources.ByType "image") "Name" }}
+
+  <article>
+    <header class="collection-header">
+      <p class="collection-kicker">{{ upper $presentation }}{{ if not .Date.IsZero }} · {{ .Date.Format "2006" }}{{ end }}</p>
+      <h1>{{ .Title }}</h1>
+      {{ with .Content }}<div class="prose">{{ . }}</div>{{ end }}
+    </header>
+
+    {{ if $images }}
+      <section class="gallery" aria-label="Photographs in {{ .Title }}">
+        {{ range $index, $image := $images }}
+          {{ $oriented := $image.Filter images.AutoOrient }}
+          {{ $thumbnail := $oriented.Fit "1200x1200 webp q82" }}
+          {{ $viewer := $oriented.Fit "2800x2800 webp q88" }}
+          {{ $caption := "" }}
+          {{ with $.Params.captions }}
+            {{ with index . (lower $image.Name) }}
+              {{ $caption = printf "%v" . }}
+            {{ end }}
+          {{ end }}
+          {{ $alt := $caption | default (printf "Photo %d from %s" (add $index 1) $.Title) }}
+
+          <figure class="gallery-item">
+            <a href="{{ $viewer.RelPermalink }}" data-lightbox>
+              <img src="{{ $thumbnail.RelPermalink }}" width="{{ $thumbnail.Width }}" height="{{ $thumbnail.Height }}" loading="{{ cond (eq $index 0) "eager" "lazy" }}" decoding="async" alt="{{ $alt }}">
+            </a>
+            {{ with $caption }}<figcaption>{{ . }}</figcaption>{{ end }}
+          </figure>
+        {{ end }}
+      </section>
+
+      <dialog class="viewer" data-viewer aria-label="Photo viewer">
+        <form method="dialog">
+          <button class="viewer-close" autofocus aria-label="Close photo viewer">×</button>
+        </form>
+        <button class="viewer-previous" type="button" data-previous aria-label="Previous photo">‹</button>
+        <figure class="viewer-figure">
+          <img data-viewer-image alt="">
+          <figcaption class="viewer-meta" aria-live="polite" aria-atomic="true">
+            <span data-viewer-count></span>
+            <span data-viewer-caption></span>
+          </figcaption>
+        </figure>
+        <button class="viewer-next" type="button" data-next aria-label="Next photo">›</button>
+      </dialog>
+    {{ else }}
+      <p class="empty-state">No photographs in this collection.</p>
+    {{ end }}
+  </article>
+{{ end }}

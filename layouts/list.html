@@ -1,0 +1,56 @@
+{{ define "main" }}
+  {{ $collections := .Pages }}
+  {{ if .IsHome }}
+    {{ with site.GetPage "/collections" }}
+      {{ $collections = .Pages }}
+    {{ end }}
+  {{ end }}
+
+  <section class="collection-index">
+    <header class="index-header">
+      {{ if .IsHome }}<p class="collection-kicker">Photographer</p>{{ end }}
+      <h1>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }}{{ end }}</h1>
+      {{ with .Content }}<div class="prose">{{ . }}</div>{{ end }}
+    </header>
+
+    {{ if $collections }}
+      <div class="collection-list">
+        {{ range $collections.ByDate.Reverse }}
+          {{ $collection := . }}
+          {{ $images := sort (.Resources.ByType "image") "Name" }}
+          {{ $cover := false }}
+          {{ with $collection.Params.cover }}
+            {{ $cover = $collection.Resources.GetMatch . }}
+          {{ end }}
+          {{ if and (not $cover) (gt (len $images) 0) }}
+            {{ $cover = index $images 0 }}
+          {{ end }}
+          {{ if and $collection.Params.cover (not $cover) }}
+            {{ errorf "collection %q: cover %q not found" $collection.File.Path $collection.Params.cover }}
+          {{ end }}
+
+          <article class="collection-card">
+            <a href="{{ $collection.RelPermalink }}">
+              {{ with $cover }}
+                {{ $oriented := .Filter images.AutoOrient }}
+                {{ $preview := $oriented.Fit "1400x1000 webp q82" }}
+                <img src="{{ $preview.RelPermalink }}" width="{{ $preview.Width }}" height="{{ $preview.Height }}" loading="lazy" decoding="async" alt="Cover photograph for {{ $collection.Title }}">
+              {{ else }}
+                <span class="collection-card__placeholder" aria-hidden="true"></span>
+              {{ end }}
+              <span class="collection-card__text">
+                <span class="collection-card__title">{{ $collection.Title }}</span>
+                <span class="collection-card__meta">
+                  {{ upper ($collection.Params.presentation | default "color") }}
+                  {{ if not $collection.Date.IsZero }} · {{ $collection.Date.Format "2006" }}{{ end }}
+                </span>
+              </span>
+            </a>
+          </article>
+        {{ end }}
+      </div>
+    {{ else }}
+      <p class="empty-state">No collections yet.</p>
+    {{ end }}
+  </section>
+{{ end }}

@@ -1,0 +1,7 @@
+baseURL: http://localhost:1313/
+locale: en-GB
+title: Nazarii Sheremet
+disableKinds:
+  - taxonomy
+  - term
+  - rss
