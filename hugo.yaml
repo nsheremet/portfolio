@@ -1,6 +1,8 @@
 baseURL: http://localhost:1313/
 locale: en-GB
 title: Nazarii Sheremet
+params:
+  description: Colour, black-and-white, and film photography by Nazarii Sheremet.
 disableKinds:
   - taxonomy
   - term

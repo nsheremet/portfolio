@@ -4,10 +4,21 @@
     {{ errorf "collection %q: presentation must be color, film, or bw" .File.Path }}
   {{ end }}
   {{ $images := sort (.Resources.ByType "image") "Name" }}
+  {{ $imageNames := slice }}
+  {{ range $images }}{{ $imageNames = $imageNames | append .Name }}{{ end }}
+  {{ range $field := slice "captions" "alt" }}
+    {{ with index $.Params $field }}
+      {{ range $name, $_ := . }}
+        {{ if not (in $imageNames $name) }}
+          {{ errorf "collection %q: %s key %q has no matching image" $.File.Path $field $name }}
+        {{ end }}
+      {{ end }}
+    {{ end }}
+  {{ end }}
 
   <article>
     <header class="collection-header">
-      <p class="collection-kicker">{{ upper $presentation }}{{ if not .Date.IsZero }} · {{ .Date.Format "2006" }}{{ end }}</p>
+      <p class="collection-kicker">{{ upper $presentation }}{{ if not .Date.IsZero }} / {{ .Date.Format "2006" }}{{ end }}</p>
       <h1>{{ .Title }}</h1>
       {{ with .Content }}<div class="prose">{{ . }}</div>{{ end }}
     </header>
@@ -16,19 +27,49 @@
       <section class="gallery" aria-label="Photographs in {{ .Title }}">
         {{ range $index, $image := $images }}
           {{ $oriented := $image.Filter images.AutoOrient }}
-          {{ $thumbnail := $oriented.Fit "1200x1200 webp q82" }}
+          {{ $orientation := "square" }}
+          {{ if gt $oriented.Width $oriented.Height }}
+            {{ $orientation = "landscape" }}
+          {{ else if lt $oriented.Width $oriented.Height }}
+            {{ $orientation = "portrait" }}
+          {{ end }}
+          {{ $variantWidths := slice 480 800 1200 1600 }}
+          {{ if eq $presentation "film" }}{{ $variantWidths = slice 320 480 800 1200 1600 }}{{ end }}
+          {{ $variants := partial "image-variants.html" (dict "image" $oriented "widths" $variantWidths "maxWidth" 2000 "quality" 82) }}
+          {{ $thumbnail := index $variants (sub (len $variants) 1) }}
           {{ $viewer := $oriented.Fit "2800x2800 webp q88" }}
+          {{ $srcset := slice }}
+          {{ range $variants }}
+            {{ $srcset = $srcset | append (printf "%s %dw" .RelPermalink .Width) }}
+          {{ end }}
+          {{ $desktopSize := cond (le (len $images) 3) "34vw" "min(25vw, 20rem)" }}
+          {{ $sizes := printf "(max-width: 720px) calc(100vw - 2.5rem), (max-width: 1000px) 50vw, (max-width: 1400px) min(34vw, 20rem), %s" $desktopSize }}
+          {{ if eq $presentation "film" }}
+            {{ $desktopSize = "min(20vw, 15rem)" }}
+            {{ if le (len $images) 3 }}
+              {{ $desktopSize = "34vw" }}
+            {{ else if eq (len $images) 4 }}
+              {{ $desktopSize = "min(25vw, 22rem)" }}
+            {{ end }}
+            {{ $sizes = printf "(max-width: 720px) calc(100vw - 2.5rem), (max-width: 900px) 50vw, (max-width: 1300px) min(34vw, 24rem), %s" $desktopSize }}
+          {{ else if eq $presentation "bw" }}
+            {{ $sizes = "(max-width: 720px) calc(100vw - 2.5rem), (max-width: 1100px) 100vw, (max-width: 1500px) 50vw, 28vw" }}
+          {{ end }}
           {{ $caption := "" }}
           {{ with $.Params.captions }}
-            {{ with index . (lower $image.Name) }}
+            {{ with index . $image.Name }}
               {{ $caption = printf "%v" . }}
             {{ end }}
           {{ end }}
-          {{ $alt := $caption | default (printf "Photo %d from %s" (add $index 1) $.Title) }}
+          {{ $alt := $caption }}
+          {{ with $.Params.alt }}
+            {{ with index . $image.Name }}{{ $alt = printf "%v" . }}{{ end }}
+          {{ end }}
+          {{ $alt = $alt | default (printf "Photo %d from %s" (add $index 1) $.Title) }}
 
-          <figure class="gallery-item">
-            <a href="{{ $viewer.RelPermalink }}" data-lightbox>
-              <img src="{{ $thumbnail.RelPermalink }}" width="{{ $thumbnail.Width }}" height="{{ $thumbnail.Height }}" loading="{{ cond (eq $index 0) "eager" "lazy" }}" decoding="async" alt="{{ $alt }}">
+          <figure class="gallery-item gallery-item--{{ $orientation }}">
+            <a href="{{ $viewer.RelPermalink }}" data-lightbox{{ if gt $viewer.Width $thumbnail.Width }} data-viewer-width="{{ $viewer.Width }}"{{ end }}>
+              <img src="{{ $thumbnail.RelPermalink }}" srcset="{{ delimit $srcset ", " }}" sizes="{{ $sizes }}" width="{{ $thumbnail.Width }}" height="{{ $thumbnail.Height }}" loading="{{ cond (eq $index 0) "eager" "lazy" }}"{{ if eq $index 0 }} fetchpriority="high"{{ end }} decoding="async" alt="{{ $alt }}">
             </a>
             {{ with $caption }}<figcaption>{{ . }}</figcaption>{{ end }}
           </figure>
@@ -36,18 +77,22 @@
       </section>
 
       <dialog class="viewer" data-viewer aria-label="Photo viewer">
-        <form method="dialog">
-          <button class="viewer-close" autofocus aria-label="Close photo viewer">×</button>
-        </form>
-        <button class="viewer-previous" type="button" data-previous aria-label="Previous photo">‹</button>
-        <figure class="viewer-figure">
-          <img data-viewer-image alt="">
-          <figcaption class="viewer-meta" aria-live="polite" aria-atomic="true">
-            <span data-viewer-count></span>
-            <span data-viewer-caption></span>
-          </figcaption>
-        </figure>
-        <button class="viewer-next" type="button" data-next aria-label="Next photo">›</button>
+        <div class="viewer-stage" data-viewer-stage>
+          <form method="dialog">
+            <button class="viewer-close" autofocus aria-label="Close photo viewer"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M6 6l12 12M18 6 6 18"/></svg></button>
+          </form>
+          <button class="viewer-fullscreen" type="button" data-fullscreen hidden aria-label="Enter full screen" aria-pressed="false"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="M8 3H3v5M16 3h5v5M8 21H3v-5M16 21h5v-5"/></svg></button>
+          <button class="viewer-previous" type="button" data-previous aria-label="Previous photo"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m15 18-6-6 6-6"/></svg></button>
+          <figure class="viewer-figure">
+            <img data-viewer-image draggable="false" alt="">
+            <p class="viewer-status" data-viewer-status role="status" hidden></p>
+            <figcaption class="viewer-meta" aria-live="polite" aria-atomic="true">
+              <span data-viewer-count></span>
+              <span data-viewer-caption></span>
+            </figcaption>
+          </figure>
+          <button class="viewer-next" type="button" data-next aria-label="Next photo"><svg viewBox="0 0 24 24" aria-hidden="true" focusable="false"><path d="m9 18 6-6-6-6"/></svg></button>
+        </div>
       </dialog>
     {{ else }}
       <p class="empty-state">No photographs in this collection.</p>

@@ -1,0 +1,9 @@
+deploy-pages:
+  stage: deploy
+  image: hugomods/hugo:exts
+  script:
+    - hugo --minify --panicOnWarning --baseURL "${CI_PAGES_URL}/"
+  pages:
+    publish: public
+  rules:
+    - if: $CI_COMMIT_BRANCH == $CI_DEFAULT_BRANCH

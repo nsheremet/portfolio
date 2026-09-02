@@ -1,0 +1,11 @@
+{{ $image := .image }}
+{{ $variants := slice }}
+{{ range .widths }}
+  {{ if lt . $image.Width }}
+    {{ $variants = $variants | append ($image.Resize (printf "%dx webp q%d" . $.quality)) }}
+  {{ end }}
+{{ end }}
+{{ $maxWidth := .maxWidth }}
+{{ if lt $image.Width $maxWidth }}{{ $maxWidth = $image.Width }}{{ end }}
+{{ $variants = $variants | append ($image.Resize (printf "%dx webp q%d" $maxWidth .quality)) }}
+{{ return $variants }}

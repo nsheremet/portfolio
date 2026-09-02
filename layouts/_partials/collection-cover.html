@@ -1,0 +1,11 @@
+{{ $images := sort (.Resources.ByType "image") "Name" }}
+{{ $cover := false }}
+{{ with .Params.cover }}
+  {{ $cover = $.Resources.GetMatch . }}
+  {{ if not $cover }}
+    {{ errorf "collection %q: cover %q not found" $.File.Path . }}
+  {{ end }}
+{{ else }}
+  {{ if gt (len $images) 0 }}{{ $cover = index $images 0 }}{{ end }}
+{{ end }}
+{{ return $cover }}

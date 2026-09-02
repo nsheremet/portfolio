@@ -8,42 +8,63 @@
 
   <section class="collection-index">
     <header class="index-header">
-      {{ if .IsHome }}<p class="collection-kicker">Photographer</p>{{ end }}
-      <h1>{{ if .IsHome }}{{ site.Title }}{{ else }}{{ .Title }}{{ end }}</h1>
+      <h1 class="wordmark" aria-label="{{ site.Title }}">
+        <span class="wordmark__line" aria-hidden="true"><span class="wordmark__initial">N</span><span>AZARII</span></span>
+        <span class="wordmark__line" aria-hidden="true"><span class="wordmark__initial">S</span><span>HEREMET</span></span>
+      </h1>
+      <p class="register-summary">
+        <span>Photographic register</span>
+        <span>Index / {{ printf "%03d" (len $collections) }}</span>
+      </p>
       {{ with .Content }}<div class="prose">{{ . }}</div>{{ end }}
     </header>
 
     {{ if $collections }}
-      <div class="collection-list">
-        {{ range $collections.ByDate.Reverse }}
-          {{ $collection := . }}
-          {{ $images := sort (.Resources.ByType "image") "Name" }}
-          {{ $cover := false }}
-          {{ with $collection.Params.cover }}
-            {{ $cover = $collection.Resources.GetMatch . }}
+      <div class="collection-register">
+        {{ range $index, $collection := $collections.ByDate.Reverse }}
+          {{ $presentation := $collection.Params.presentation | default "color" }}
+          {{ $images := sort ($collection.Resources.ByType "image") "Name" }}
+          {{ $cover := partial "collection-cover.html" $collection }}
+          {{ $year := "UNDATED" }}
+          {{ if not $collection.Date.IsZero }}{{ $year = $collection.Date.Format "2006" }}{{ end }}
+          {{ $preview := false }}
+          {{ $srcset := slice }}
+          {{ $colors := slice }}
+          {{ $sizes := "(max-width: 720px) calc(100vw - 4rem), 100vw" }}
+          {{ with $cover }}
+            {{ $oriented := .Filter images.AutoOrient }}
+            {{ $variantWidths := slice 480 900 }}
+            {{ $maxWidth := 1400 }}
+            {{ if eq $presentation "color" }}
+              {{ $variantWidths = slice 480 900 1400 }}
+              {{ $maxWidth = 2000 }}
+            {{ else if eq $presentation "film" }}
+              {{ $sizes = "(max-width: 720px) calc(100vw - 4rem), 62vw" }}
+            {{ else }}
+              {{ $sizes = "(max-width: 720px) calc(100vw - 4rem), 68vw" }}
+            {{ end }}
+            {{ $variants := partial "image-variants.html" (dict "image" $oriented "widths" $variantWidths "maxWidth" $maxWidth "quality" 82) }}
+            {{ $preview = index $variants (sub (len $variants) 1) }}
+            {{ range $variants }}{{ $srcset = $srcset | append (printf "%s %dw" .RelPermalink .Width) }}{{ end }}
+            {{ $paletteSource := $oriented.Resize "64x webp q50" }}
+            {{ $colors = first 5 $paletteSource.Colors }}
           {{ end }}
-          {{ if and (not $cover) (gt (len $images) 0) }}
-            {{ $cover = index $images 0 }}
-          {{ end }}
-          {{ if and $collection.Params.cover (not $cover) }}
-            {{ errorf "collection %q: cover %q not found" $collection.File.Path $collection.Params.cover }}
-          {{ end }}
-
-          <article class="collection-card">
+          <article class="collection-plate collection-plate--{{ $presentation }}">
             <a href="{{ $collection.RelPermalink }}">
-              {{ with $cover }}
-                {{ $oriented := .Filter images.AutoOrient }}
-                {{ $preview := $oriented.Fit "1400x1000 webp q82" }}
-                <img src="{{ $preview.RelPermalink }}" width="{{ $preview.Width }}" height="{{ $preview.Height }}" loading="lazy" decoding="async" alt="Cover photograph for {{ $collection.Title }}">
-              {{ else }}
-                <span class="collection-card__placeholder" aria-hidden="true"></span>
-              {{ end }}
-              <span class="collection-card__text">
-                <span class="collection-card__title">{{ $collection.Title }}</span>
-                <span class="collection-card__meta">
-                  {{ upper ($collection.Params.presentation | default "color") }}
-                  {{ if not $collection.Date.IsZero }} · {{ $collection.Date.Format "2006" }}{{ end }}
+              <header class="plate-header">
+                <span class="plate-number">NO.{{ printf "%02d" (add $index 1) }}</span>
+                <h2 class="plate-title">{{ $collection.Title }}</h2>
+                <span class="plate-meta">{{ upper $presentation }} / {{ $year }} / {{ printf "%02d" (len $images) }} frames</span>
+                <span class="plate-palette" aria-hidden="true">
+                  {{ range $colors }}<i style="{{ printf "background:%s" . | safeCSS }}"></i>{{ end }}
                 </span>
+              </header>
+              <span class="plate-image">
+                {{ with $preview }}
+                  <img src="{{ .RelPermalink }}" srcset="{{ delimit $srcset ", " }}" sizes="{{ $sizes }}" width="{{ .Width }}" height="{{ .Height }}" loading="{{ cond (eq $index 0) "eager" "lazy" }}"{{ if eq $index 0 }} fetchpriority="high"{{ end }} decoding="async" alt="">
+                {{ else }}
+                  <span class="plate-image__placeholder" aria-hidden="true"></span>
+                {{ end }}
               </span>
             </a>
           </article>
