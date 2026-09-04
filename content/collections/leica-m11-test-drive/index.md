@@ -2,7 +2,7 @@
 title: Cambridge, in Passing
 date: 2026-08-26
 presentation: bw
-cover: L1009165.jpg
+cover: L1009121.jpg
 alt:
   L1009047.jpg: Brick building viewed from below beside a clouded sky, crossed by strings of hanging bulbs.
   L1009069.jpg: Small carved wooden figure seated on a wooden ledge against blurred window light.

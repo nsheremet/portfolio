@@ -286,7 +286,7 @@ img {
 .exhibition-wall__label {
   grid-column: 10 / -1;
   grid-row: 1;
-  align-self: end;
+  align-self: start;
 }
 
 .exhibition-wall__number {
@@ -304,7 +304,7 @@ img {
   font-variation-settings: "MONO" 1, "CASL" 0;
   font-weight: 450;
   letter-spacing: -0.055em;
-  line-height: 0.92;
+  line-height: 1;
   overflow-wrap: anywhere;
   text-wrap: balance;
 }
@@ -317,6 +317,7 @@ img {
   max-width: 34rem;
   margin: 1.5rem 0 0;
   color: var(--muted);
+  font-variation-settings: "MONO" 0, "CASL" 0;
   font-size: 0.82rem;
   font-weight: 350;
   line-height: 1.6;
@@ -383,6 +384,7 @@ img {
   max-width: 42rem;
   margin-top: 2rem;
   color: var(--muted);
+  font-variation-settings: "MONO" 0, "CASL" 0;
   font-weight: 350;
   text-wrap: pretty;
 }
@@ -512,19 +514,6 @@ body[data-presentation="bw"] .gallery {
 
 .home .site-footer {
   grid-template-columns: minmax(0, 1fr) auto;
-  min-height: clamp(14rem, 28vw, 24rem);
-  row-gap: clamp(3rem, 8vw, 7rem);
-}
-
-.home .site-footer__mark {
-  grid-column: 1 / -1;
-  color: var(--foreground);
-  font-size: clamp(1.8rem, 4vw, 3.5rem);
-  font-variation-settings: "MONO" 1, "CASL" 0;
-  font-weight: 450;
-  letter-spacing: -0.05em;
-  line-height: 0.95;
-  text-transform: none;
 }
 
 .home .site-footer__nav {
@@ -770,8 +759,6 @@ body:has(.viewer[open]) {
 
   .home .site-footer {
     grid-template-columns: 1fr;
-    min-height: 14rem;
-    row-gap: 2rem;
   }
 
   .home .site-footer__nav {

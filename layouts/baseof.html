@@ -71,11 +71,11 @@
       {{ block "main" . }}{{ end }}
     </main>
     <footer class="site-footer">
-      <span class="site-footer__mark" aria-hidden="true">{{ if .IsHome }}{{ site.Title }}{{ else }}N|S{{ end }}</span>
+      {{ if not .IsHome }}<span class="site-footer__mark" aria-hidden="true">N|S</span>{{ end }}
       <p>© {{ now.Year }} {{ site.Title }}</p>
       <nav class="site-footer__nav" aria-label="Footer navigation">
         {{ if not .IsHome }}<a href="{{ site.Home.RelPermalink }}">Index</a>{{ end }}
-        {{ with site.Params.contact }}<a href="{{ . }}">Contact</a>{{ end }}
+        {{ with site.Params.contact }}<a href="{{ . }}">{{ strings.TrimPrefix "mailto:" . }}</a>{{ end }}
         <a href="#top">Top</a>
       </nav>
     </footer>
