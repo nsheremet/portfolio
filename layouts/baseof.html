@@ -51,11 +51,16 @@
       <script src="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}" defer></script>
     {{ end }}
   </head>
-  <body id="top"{{ if .IsPage }} data-presentation="{{ .Params.presentation | default "color" }}"{{ end }}>
+  <body id="top"{{ if .IsHome }} class="home"{{ end }}{{ if .IsPage }} data-presentation="{{ .Params.presentation | default "color" }}"{{ end }}>
     <a class="skip-link" href="#content">Skip to content</a>
     <header class="site-header">
-      <a class="site-mark" href="{{ site.Home.RelPermalink }}" aria-label="{{ site.Title }} home"><span aria-hidden="true">N|S</span></a>
-      {{ if or (not .IsHome) site.Params.contact }}
+      <a class="site-mark" href="{{ site.Home.RelPermalink }}" aria-label="{{ site.Title }} home"><span aria-hidden="true">{{ if .IsHome }}N. Sheremet{{ else }}N|S{{ end }}</span></a>
+      {{ if .IsHome }}
+        <nav class="site-nav" aria-label="Primary navigation">
+          <a href="#collections">Work</a>
+          {{ with site.Params.contact }}<a href="{{ . }}">Contact</a>{{ end }}
+        </nav>
+      {{ else if or (not .IsHome) site.Params.contact }}
         <nav class="site-nav" aria-label="Primary navigation">
           {{ if not .IsHome }}<a href="{{ site.Home.RelPermalink }}">Index</a>{{ end }}
           {{ with site.Params.contact }}<a href="{{ . }}">Contact</a>{{ end }}
@@ -66,7 +71,7 @@
       {{ block "main" . }}{{ end }}
     </main>
     <footer class="site-footer">
-      <span class="site-footer__mark" aria-hidden="true">N|S</span>
+      <span class="site-footer__mark" aria-hidden="true">{{ if .IsHome }}{{ site.Title }}{{ else }}N|S{{ end }}</span>
       <p>© {{ now.Year }} {{ site.Title }}</p>
       <nav class="site-footer__nav" aria-label="Footer navigation">
         {{ if not .IsHome }}<a href="{{ site.Home.RelPermalink }}">Index</a>{{ end }}
