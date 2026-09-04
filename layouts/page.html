@@ -5,7 +5,7 @@
   {{ end }}
   {{ $images := sort (.Resources.ByType "image") "Name" }}
   {{ $imageNames := slice }}
-  {{ range $images }}{{ $imageNames = $imageNames | append .Name }}{{ end }}
+  {{ range $images }}{{ $imageNames = $imageNames | append (lower .Name) }}{{ end }}
   {{ range $field := slice "captions" "alt" }}
     {{ with index $.Params $field }}
       {{ range $name, $_ := . }}
