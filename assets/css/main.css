@@ -172,7 +172,7 @@ img {
 
 .wordmark {
   margin: 0;
-  font-size: clamp(3.25rem, 9vw, 8rem);
+  font-size: clamp(2.5rem, 6.75vw, 5.8rem);
   font-variation-settings: "MONO" 1, "CASL" 1;
   font-weight: 650;
   letter-spacing: -0.045em;
@@ -216,7 +216,7 @@ img {
 
 .collection-header h1 {
   margin: 0;
-  font-size: clamp(2.8rem, 6vw, 5.5rem);
+  font-size: clamp(2.2rem, 4.5vw, 4rem);
   font-weight: 450;
   letter-spacing: -0.045em;
   line-height: 0.92;
@@ -300,7 +300,7 @@ img {
 
 .plate-title {
   margin: 0;
-  font-size: clamp(2.4rem, 6vw, 6.25rem);
+  font-size: clamp(2.2rem, 4.5vw, 4rem);
   font-weight: 450;
   letter-spacing: -0.05em;
   line-height: 0.9;
@@ -652,7 +652,7 @@ body:has(.viewer[open]) {
   }
 
   .wordmark {
-    font-size: clamp(2.75rem, 14vw, 4.2rem);
+    font-size: clamp(2.2rem, 10.5vw, 3.2rem);
   }
 
   .register-summary {
@@ -677,10 +677,6 @@ body:has(.viewer[open]) {
   .plate-header {
     grid-template-columns: 1fr;
     gap: 0.5rem;
-  }
-
-  .plate-title {
-    font-size: clamp(2.2rem, 11vw, 3.5rem);
   }
 
   .plate-meta {
