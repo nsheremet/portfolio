@@ -44,7 +44,9 @@
       <meta name="twitter:card" content="summary">
     {{ end }}
     <link rel="preload" href="{{ "fonts/recursive-1.085-english.woff2" | relURL }}" as="font" type="font/woff2" crossorigin>
-    {{ with resources.Get "css/main.css" | minify | fingerprint }}
+    <link rel="preload" href="{{ "fonts/sofia-sans-extra-condensed-200.ttf" | relURL }}" as="font" type="font/ttf" crossorigin>
+    {{ $styles := slice (resources.Get "css/tokens.css") (resources.Get "css/base.css") (resources.Get "css/main.css") }}
+    {{ with $styles | resources.Concat "css/portfolio.css" | minify | fingerprint }}
       <link rel="stylesheet" href="{{ .RelPermalink }}" integrity="{{ .Data.Integrity }}">
     {{ end }}
     {{ with resources.Get "js/gallery.js" | minify | fingerprint }}
@@ -53,7 +55,7 @@
   </head>
   <body id="top"{{ if .IsHome }} class="home"{{ end }}{{ if .IsPage }} data-presentation="{{ .Params.presentation | default "color" }}"{{ end }}>
     <a class="skip-link" href="#content">Skip to content</a>
-    <header class="site-header">
+    <header class="site-header container">
       <a class="site-mark" href="{{ site.Home.RelPermalink }}" aria-label="{{ site.Title }} home"><span aria-hidden="true">{{ if .IsHome }}N. Sheremet{{ else }}N|S{{ end }}</span></a>
       {{ if .IsHome }}
         <nav class="site-nav" aria-label="Primary navigation">
@@ -70,9 +72,9 @@
     <main id="content" tabindex="-1">
       {{ block "main" . }}{{ end }}
     </main>
-    <footer class="site-footer">
+    <footer class="site-footer container">
       {{ if not .IsHome }}<span class="site-footer__mark" aria-hidden="true">N|S</span>{{ end }}
-      <p>© {{ now.Year }} {{ site.Title }}</p>
+      <p>© {{ now.Year }} {{ site.Title }}{{ if .IsHome }}<span class="site-footer__role">Photographer</span>{{ end }}</p>
       <nav class="site-footer__nav" aria-label="Footer navigation">
         {{ if not .IsHome }}<a href="{{ site.Home.RelPermalink }}">Index</a>{{ end }}
         {{ with site.Params.contact }}<a href="{{ . }}">{{ strings.TrimPrefix "mailto:" . }}</a>{{ end }}

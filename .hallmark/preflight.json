@@ -1,0 +1,22 @@
+{
+  "scanned": "2026-10-27",
+  "findings": {
+    "fonts": "Recursive 1.085 local; README.md:7, assets/css/main.css original lines 1-49",
+    "palette": "Warm paper homepage and dark bw collection; original main.css:50-89",
+    "motion": "Native gallery.js masonry, dialog, fullscreen and swipe; assets/js/gallery.js:1-172",
+    "spacing": "Fluid uncapped original layout; assets/css/main.css original lines 120-188",
+    "framework": "Hugo 0.165.0, README.md:3, .github/workflows/hugo.yaml"
+  },
+  "preserve": [
+    "All content and routes",
+    "Recursive body font",
+    "Original photograph rendering",
+    "All viewer hooks and handlers"
+  ],
+  "introduce": [
+    "Darkroom design system",
+    "Photographic opening",
+    "Sofia display face",
+    "Capped responsive container"
+  ]
+}

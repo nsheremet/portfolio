@@ -1,0 +1,42 @@
+[
+ {
+  "date": "2026-10-27",
+  "mode": "redesign",
+  "depth": "full",
+  "scope": "site",
+  "shape": "Photographic",
+  "theme": "darkroom",
+  "genre": "atmospheric",
+  "draw": "987931",
+  "axes": "dark/display-condensed/chromatic-amber",
+  "hero": "Poster home; Banner collection",
+  "nav": "slab",
+  "footer": "letter close",
+  "imagery": "existing user photographs, original rendering",
+  "photos": [
+   "content/collections/leica-m11-test-drive/L1009121.jpg"
+  ],
+  "entry": "Cambridge market cover beneath photographer name",
+  "fingerprint": "Overlapping|Two-column asymmetric|Negative space|Solid|Margin-aligned|None",
+  "sections": [
+   "Photographic hero",
+   "Collection index",
+   "Contact colophon"
+  ],
+  "signature": "Cambridge market beneath a tall photographer name; complete mobile photograph",
+  "waived": [
+   "44c",
+   "83"
+  ],
+  "hero_review": "2 findings resolved",
+  "finish_review": "ship, no findings",
+  "sweep": {
+   "floor": 0,
+   "reflex_open": 0,
+   "waived": 2,
+   "warnings": 0,
+   "links_kept": "15/15"
+  },
+  "prompt": "Redesign a general photography portfolio; keep original photos and Cambridge series."
+ }
+]

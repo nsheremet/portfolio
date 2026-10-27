@@ -6,16 +6,26 @@
     {{ end }}
   {{ end }}
 
-  <section class="portfolio-index">
-    <header class="portfolio-intro">
-      <p class="portfolio-intro__meta">
-        <span>Photographer</span>
-        <span>Selected work / {{ printf "%03d" (len $collections) }}</span>
-      </p>
-      <h1 class="portfolio-title">{{ site.Title }}</h1>
-      <div class="portfolio-intro__footer">
-        {{ with .Content }}<div class="prose">{{ . }}</div>{{ end }}
-        {{ if $collections }}<a class="portfolio-intro__jump" href="#collections">View collections <span aria-hidden="true">&#8595;</span></a>{{ end }}
+  <div class="portfolio-index container">
+    <header class="portfolio-intro hero">
+      {{ range first 1 $collections.ByDate.Reverse }}
+        {{ with partial "collection-cover.html" . }}
+          {{ $oriented := .Filter images.AutoOrient }}
+          {{ $variants := partial "image-variants.html" (dict "image" $oriented "widths" (slice 480 900 1400) "maxWidth" 2000 "quality" 82) }}
+          {{ $preview := index $variants (sub (len $variants) 1) }}
+          {{ $srcset := slice }}
+          {{ range $variants }}{{ $srcset = $srcset | append (printf "%s %dw" .RelPermalink .Width) }}{{ end }}
+          <div class="portfolio-intro__image" aria-hidden="true">
+            <img src="{{ $preview.RelPermalink }}" srcset="{{ delimit $srcset ", " }}" sizes="(min-width: 1440px) 1312px, calc(100vw - 2rem)" width="{{ $preview.Width }}" height="{{ $preview.Height }}" fetchpriority="high" decoding="async" alt="">
+          </div>
+        {{ end }}
+      {{ end }}
+      <div class="portfolio-intro__content">
+        <h1 class="portfolio-title">{{ site.Title }}</h1>
+        <div class="portfolio-intro__footer">
+          {{ with .Content }}<div class="prose">{{ . }}</div>{{ end }}
+          {{ if $collections }}<a class="portfolio-intro__jump" href="#collections">View collections</a>{{ end }}
+        </div>
       </div>
     </header>
 
@@ -30,11 +40,11 @@
           {{ $presentation := $collection.Params.presentation | default "color" }}
           {{ $images := sort ($collection.Resources.ByType "image") "Name" }}
           {{ $cover := partial "collection-cover.html" $collection }}
-          {{ $year := "UNDATED" }}
+          {{ $year := "Undated" }}
           {{ if not $collection.Date.IsZero }}{{ $year = $collection.Date.Format "2006" }}{{ end }}
           {{ $preview := false }}
           {{ $srcset := slice }}
-          {{ $sizes := "(max-width: 900px) calc(100vw - 2.5rem), 67vw" }}
+          {{ $sizes := "(max-width: 640px) calc(100vw - 2rem), (min-width: 1440px) 752px, 55vw" }}
           {{ with $cover }}
             {{ $oriented := .Filter images.AutoOrient }}
             {{ $variants := partial "image-variants.html" (dict "image" $oriented "widths" (slice 480 900 1400) "maxWidth" 2000 "quality" 82) }}
@@ -45,17 +55,16 @@
             <a class="exhibition-wall__link" href="{{ $collection.RelPermalink }}" aria-labelledby="collection-{{ add $index 1 }}-title">
               <span class="exhibition-wall__image">
                 {{ with $preview }}
-                  <img src="{{ .RelPermalink }}" srcset="{{ delimit $srcset ", " }}" sizes="{{ $sizes }}" width="{{ .Width }}" height="{{ .Height }}" loading="{{ cond (eq $index 0) "eager" "lazy" }}"{{ if eq $index 0 }} fetchpriority="high"{{ end }} decoding="async" alt="">
+                  <img src="{{ .RelPermalink }}" srcset="{{ delimit $srcset ", " }}" sizes="{{ $sizes }}" width="{{ .Width }}" height="{{ .Height }}" loading="lazy" decoding="async" alt="">
                 {{ else }}
                   <span class="exhibition-wall__placeholder" aria-hidden="true"></span>
                 {{ end }}
               </span>
               <header class="exhibition-wall__label">
-                <p class="exhibition-wall__number"><span>{{ printf "%02d" (add $index 1) }}</span><span>Collection</span></p>
                 <h3 id="collection-{{ add $index 1 }}-title">{{ $collection.Title }}</h3>
-                <p class="exhibition-wall__meta">{{ upper $presentation }} / {{ $year }} / {{ printf "%02d" (len $images) }} frames</p>
+                <p class="exhibition-wall__meta"><span>{{ printf "%02d" (add $index 1) }} Collection</span><span>{{ $presentation }} / {{ $year }}</span><span>{{ printf "%02d" (len $images) }} frames</span></p>
                 {{ with $collection.Summary }}<p class="exhibition-wall__description">{{ . | plainify }}</p>{{ end }}
-                <span class="exhibition-wall__action">View collection <span aria-hidden="true">&#8599;</span></span>
+                <span class="exhibition-wall__action">View collection</span>
               </header>
             </a>
           </article>
@@ -65,5 +74,5 @@
     {{ else }}
       <p class="empty-state" id="collections">No collections yet.</p>
     {{ end }}
-  </section>
+  </div>
 {{ end }}

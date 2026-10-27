@@ -1,10 +1,12 @@
 # Nazarii Sheremet
 
-Minimal photo gallery built with Hugo page bundles.
+Photography portfolio built with Hugo page bundles, with a photograph-led homepage and a shared Darkroom design system.
 
 Collection photographs keep their full aspect ratios in a responsive masonry layout; no collection metadata is needed for sizing.
 
-Typography uses Recursive 1.085 under the SIL Open Font License 1.1; Latin subsets load on demand, with system-monospace fallback for other scripts. The bundled license is in `static/fonts/recursive-OFL.txt`.
+Typography uses locally hosted Sofia Sans Extra Condensed for display headings and Recursive 1.085 for body text. Both use the SIL Open Font License 1.1; licenses are bundled in `static/fonts/`. Recursive's Latin subsets load on demand.
+
+The design is documented in `design.md`. Colours, fonts and spacing live in `assets/css/tokens.css`; Hugo bundles that file with `base.css` and `main.css` into one fingerprinted stylesheet. No external fonts or runtime dependencies are required.
 
 ## Run locally
 
@@ -30,7 +32,7 @@ content/collections/winter-coast/
 
 Use lowercase, zero-padded filenames to control photo order. Export in sRGB at roughly 2400–3000 px on the long edge; remove location metadata and keep RAW originals elsewhere.
 
-The homepage builds each collection's colour fingerprint from its cover automatically.
+The homepage uses the newest collection's cover for its opening photograph. Collection previews and the gallery retain the photographs' full aspect ratios; only the desktop opening photograph is cropped to its frame.
 
 `index.md` contains YAML metadata and an optional Markdown introduction:
 
@@ -56,6 +58,7 @@ Captions are optional and also provide image alternative text. Use the optional 
 
 ```sh
 hugo --buildDrafts --panicOnWarning --minify
+node scripts/check-site.mjs
 ```
 
 ## Deploy to GitLab Pages
