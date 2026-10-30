@@ -35,9 +35,9 @@
           {{ end }}
           {{ $variantWidths := slice 480 800 1200 1600 }}
           {{ if eq $presentation "film" }}{{ $variantWidths = slice 320 480 800 1200 1600 }}{{ end }}
-          {{ $variants := partial "image-variants.html" (dict "image" $oriented "widths" $variantWidths "maxWidth" 2000 "quality" 82) }}
+          {{ $variants := partial "image-variants.html" (dict "image" $oriented "widths" $variantWidths "maxWidth" 2000 "quality" 92) }}
           {{ $thumbnail := index $variants (sub (len $variants) 1) }}
-          {{ $viewer := $oriented.Fit "2800x2800 webp q88" }}
+          {{ $viewer := $oriented.Fit "2800x2800 webp q96" }}
           {{ $srcset := slice }}
           {{ range $variants }}
             {{ $srcset = $srcset | append (printf "%s %dw" .RelPermalink .Width) }}

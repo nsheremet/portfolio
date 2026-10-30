@@ -14,7 +14,7 @@ The design is documented in `design.md`. Colours, fonts and spacing live in `ass
 hugo server --buildDrafts --renderToMemory
 ```
 
-Open <http://localhost:1313/>. The included draft collection demonstrates the UI but is excluded from normal builds.
+Open <http://localhost:1313/>.
 
 Edit `content/_index.md` to change the homepage biography. Add `contact: mailto:you@example.com` under `params` in `hugo.yaml` to show the header contact link.
 

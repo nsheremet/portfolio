@@ -21,8 +21,6 @@ try {
 
     const home = readFileSync(join(destination, "index.html"), "utf8");
     const gallery = readFileSync(join(destination, collection, "index.html"), "utf8");
-    assert.equal(existsSync(join(destination, "collections/example/index.html")), drafts, "Draft collection visibility");
-    assert.equal(home.includes(`${prefix}collections/example/`), drafts, "Draft homepage link visibility");
     assert.ok(home.includes(`href="${prefix}${collection}"`), "Published collection is linked");
     assert.ok(home.includes('id="collections"'), "Work anchor exists");
 
